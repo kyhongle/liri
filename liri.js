@@ -1,21 +1,88 @@
-// pseudocode
-// install all the given packages
+require("dotenv").config();
 
-// require ("dotenv").config() - should be at the top all the time
-// require keys.js
-// var keys=require("./keys.js")
+var keys = require("./keys.js");
+var axios = require("axios");
+var Spotify = require("node-spotify-api");
+var spotify = new Spotify(keys.spotify);
+var moment = require("moment");
+moment().format();
 
-// var spotify = new Spotify(keys.spotify)
+var fs = require("fs");
 
-// user command choice
-// process.argv or inquirer
+var userCommand = process.argv[2];
+var userSearch = process.argv.slice(3).join(" ");
 
-// check for user command
-// if or switch
-// cond(concert-this)
-// create a function: function concert()
+// console.log(userCommand, "user search: ", userSearch);
+// function for entire liri app
+function liri() {
+  if (userCommand === "concert-this") {
+    concertThis();
+  } else if (userCommand === "spotify-this-song") {
+    spotifyThis();
+  } else if (userCommand === "movie-this") {
+    movieThis();
+  } else if (userCommand === "do-what-it-says") {
+    doWhat();
+  }
+}
 
-// concert()
-// have to use axios
-// use this url: "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"
-// display name, location, date
+function concertThis() {
+  var queryUrl =
+    "https://rest.bandsintown.com/artists/" +
+    userSearch.replace(" ", "%20") +
+    "/events?app_id=codingbootcamp";
+  console.log(queryUrl);
+
+  axios.get(queryUrl).then(function(response) {
+    console.log(JSON.stringify(response.data, null, 2));
+  });
+}
+
+// concertThis();
+
+function spotifyThis() {
+  spotify.search({ type: "track", query: userSearch }, function(err, data) {
+    if (err) {
+      return console.log("Error occurred: " + err);
+    }
+    var foundTrack = data.tracks.items[0];
+    console.log(foundTrack.name);
+    console.log(foundTrack.album.name); //.artists[0]);
+    console.log(foundTrack.artists[0].name); //JSON.stringify(foundTrack.albums, null, 2));
+  });
+}
+// spotifyThis();
+
+function movieThis() {
+  var queryUrl =
+    "http://www.omdbapi.com/?t=" + userSearch + "&y=&plot=short&apikey=trilogy";
+
+  // This line is just to help us debug against the actual URL.
+  console.log(queryUrl);
+
+  axios.get(queryUrl).then(function(response) {
+    // console.log(JSON.stringify(response.data, null, 2));
+    var movie = response.data;
+    console.log("Title: " + movie.Title);
+    console.log("Year: " + movie.Year);
+    console.log("IMDB Rating: " + movie.Ratings[0].Value);
+    console.log("Rotten Tomatoes Rating: " + movie.Ratings[1].Value);
+    console.log("Country: " + movie.Country);
+    console.log("Language: " + movie.Language);
+    console.log("Actors: " + movie.Actors);
+    console.log("Plot: " + movie.Plot);
+  });
+}
+// movieThis();
+
+function doWhat() {
+  fs.readFile("random.txt", "utf8", function(error, data) {
+    if (error) {
+      return console.log(error);
+    }
+
+    console.log(data);
+  });
+}
+
+liri();
