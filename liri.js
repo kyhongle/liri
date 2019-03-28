@@ -34,7 +34,11 @@ function concertThis() {
   console.log(queryUrl);
 
   axios.get(queryUrl).then(function(response) {
-    console.log(JSON.stringify(response.data, null, 2));
+    var concert = response.data[0];
+    // console.log(concert);
+    console.log("Concert Venue: " + concert.venue.name);
+    console.log("Concert Location: " + concert.venue.city);
+    console.log("Concert Date: " + concert.datetime);
   });
 }
 
@@ -46,9 +50,10 @@ function spotifyThis() {
       return console.log("Error occurred: " + err);
     }
     var foundTrack = data.tracks.items[0];
-    console.log(foundTrack.name);
-    console.log(foundTrack.album.name); //.artists[0]);
-    console.log(foundTrack.artists[0].name); //JSON.stringify(foundTrack.albums, null, 2));
+    console.log("Name: " + foundTrack.name);
+    console.log("Album: " + foundTrack.album.name); //.artists[0]);
+    console.log("Artist: " + foundTrack.artists[0].name); //JSON.stringify(foundTrack.albums, null, 2));
+    console.log("Link: " + foundTrack.external_urls.spotify);
   });
 }
 // spotifyThis();
